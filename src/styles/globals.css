@@ -1,0 +1,266 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* CSS Custom Properties (Design Tokens) for Chill Mode */
+[data-mode="Chill"] {
+  /* Expanded Neutral Palette (Clean neutrals with slight blue tint, 50-900) */
+  --neutral-50: #FAFBFC;
+  --neutral-100: #F4F6FA;
+  --neutral-200: #E8ECF3;
+  --neutral-300: #D8DFE8;
+  --neutral-400: #B8C2D1;
+  --neutral-500: #98A6B8;
+  --neutral-600: #7888A0;
+  --neutral-700: #5A6B85;
+  --neutral-800: #3A4A62;
+  --neutral-900: #1E2A40;
+
+  /* Surface Tokens (Layered backgrounds) */
+  --surface-default: #F7F9FC;
+  --surface-raised: #FFFFFF;
+  --surface-card: #FFFFFF;
+  --surface-container: #F2F5F9;
+  --surface-hover: rgba(108, 168, 255, 0.06);
+  --surface-active: rgba(108, 168, 255, 0.12);
+
+  /* Component Background Tokens */
+  --component-bg-default: #F7F9FC;
+  --component-bg-section: linear-gradient(145deg, #F7F9FC, #FAFBFD);
+  --component-bg-header: #FFFFFF;
+  --component-bg-card: #FFFFFF;
+  --component-bg-panel: #FFFFFF;
+
+  /* Component Chip Tokens */
+  --component-chip-default: #FFFFFF;
+  --component-chip-selected: rgba(108, 168, 255, 0.15);
+  --component-chip-text: #1E2A40;
+  --component-chip-border: rgba(108, 168, 255, 0.25);
+
+  /* Text Tokens - Dark for readability */
+  --text-primary: #1E2A40;
+  --text-secondary: #3A4A62;
+  --text-tertiary: #7888A0;
+
+  /* State Background Tokens */
+  --info-background: rgba(108, 168, 255, 0.12);
+  --warning-background: rgba(255, 190, 100, 0.12);
+  --success-background: rgba(80, 200, 120, 0.12);
+  --neutral-background: rgba(184, 194, 209, 0.12);
+
+  /* Legacy Tokens (Backward compatibility) */
+  --color-background: #F7F9FC;
+  --color-background-alt: #FAFBFC;
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F2F5F9;
+  --color-card: #FFFFFF;
+  --color-card-alt: #FAFBFC;
+
+  --color-neutral-100: #F4F6FA;
+  --color-neutral-200: #E8ECF3;
+  --color-neutral-300: #D8DFE8;
+  --color-neutral-400: #B8C2D1;
+  --color-neutral-500: #98A6B8;
+  --color-neutral-600: #7888A0;
+  --color-neutral-700: #5A6B85;
+
+  --color-text-primary: #1E2A40;
+  --color-text-secondary: #3A4A62;
+  --color-text-muted: #7888A0;
+
+  --color-accent-primary: #6CA8FF;
+  --color-accent-secondary: #A9A2FF;
+  --color-accent-tertiary: #88D4A7;
+
+  --color-state-info: rgba(108, 168, 255, 0.12);
+  --color-state-warning: rgba(255, 190, 100, 0.12);
+  --color-state-success: rgba(80, 200, 120, 0.12);
+  --color-state-neutral: rgba(184, 194, 209, 0.12);
+
+  --color-scroll-track: rgba(108, 168, 255, 0.08);
+  --color-scroll-thumb: rgba(108, 168, 255, 0.35);
+  --color-scroll-thumb-hover: rgba(108, 168, 255, 0.50);
+
+  --color-border-soft: rgba(108, 168, 255, 0.15);
+  --color-border-medium: rgba(108, 168, 255, 0.25);
+  --shadow-soft: 0 2px 8px rgba(108, 168, 255, 0.08);
+  --shadow-medium: 0 4px 16px rgba(108, 168, 255, 0.12);
+  --shadow-glow: 0 0 40px -12px rgba(108, 168, 255, 0.2);
+}
+
+/* Sprint Mode Tokens */
+[data-mode="Sprint"] {
+  --color-background: #1E1E1E;
+  --color-background-alt: #2A1F24;
+  --color-surface: rgba(23, 23, 23, 0.6);
+  --color-card: rgba(38, 38, 38, 0.6);
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: #E5E5E5;
+  --color-text-muted: #A3A3A3;
+  --color-accent-primary: #FF4A4A;
+  --color-border-soft: rgba(255, 74, 74, 0.2);
+  --shadow-soft: 0 4px 14px rgba(255, 74, 74, 0.1);
+}
+
+/* Focus Mode Tokens */
+[data-mode="Focus"] {
+  --color-background: #F5F5F5;
+  --color-background-alt: #E5E5E5;
+  --color-surface: rgba(255, 255, 255, 0.8);
+  --color-card: rgba(255, 255, 255, 0.8);
+  --color-text-primary: #171717;
+  --color-text-secondary: #525252;
+  --color-text-muted: #737373;
+  --color-accent-primary: #6B7280;
+  --color-border-soft: rgba(212, 212, 212, 0.4);
+  --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=' text-']), :not(:has([class^='text-'])))) {
+    h1 {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    h4 {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    button {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.5;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}
+
+/* Mode-Adaptive Scrollbars */
+/* Sprint Mode Scrollbar - Red energy */
+[data-mode="Sprint"] * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 80, 80, 0.7) rgba(255, 80, 80, 0.2);
+}
+
+[data-mode="Sprint"] *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-mode="Sprint"] *::-webkit-scrollbar-track {
+  background: rgba(255, 80, 80, 0.2);
+  border-radius: 6px;
+}
+
+[data-mode="Sprint"] *::-webkit-scrollbar-thumb {
+  background: rgba(255, 80, 80, 0.7);
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+[data-mode="Sprint"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 80, 80, 0.9);
+}
+
+/* Focus Mode Scrollbar - Minimal grey */
+[data-mode="Focus"] * {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 120, 0.6) rgba(200, 200, 200, 0.25);
+}
+
+[data-mode="Focus"] *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-mode="Focus"] *::-webkit-scrollbar-track {
+  background: rgba(200, 200, 200, 0.25);
+  border-radius: 6px;
+}
+
+[data-mode="Focus"] *::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, 0.6);
+  border-radius: 6px;
+  transition: background 0.2s ease;
+}
+
+[data-mode="Focus"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 120, 0.8);
+}
+
+/* Chill Mode Scrollbar - Soft blue with glow */
+[data-mode="Chill"] * {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scroll-thumb) var(--color-scroll-track);
+}
+
+[data-mode="Chill"] *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-mode="Chill"] *::-webkit-scrollbar-track {
+  background: var(--color-scroll-track);
+  border-radius: 6px;
+}
+
+[data-mode="Chill"] *::-webkit-scrollbar-thumb {
+  background: var(--color-scroll-thumb);
+  border-radius: 6px;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-mode="Chill"] *::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scroll-thumb-hover);
+  box-shadow: 0 0 6px rgba(140, 170, 255, 0.4);
+}

@@ -1,2 +1,6 @@
-# CoHesion
-An adaptive workspace that transforms with your mental state.
+  ## Running the code
+
+  Run `npm i` to install the dependencies.
+
+  Run `npm run dev` to start the development server.
+  
