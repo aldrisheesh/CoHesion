@@ -1,8 +1,9 @@
 import { motion } from 'motion/react';
-import { User, Settings, Sparkles } from 'lucide-react';
-import { Mode } from '../App';
+import { User, Settings, Sparkles, Radio } from 'lucide-react';
+import { Mode, Role, Screen } from '../App';
 import { useState } from 'react';
 import { CoHesionLogo } from './CoHesionLogo';
+import { RoleToggle } from './RoleToggle';
 
 interface TopBarProps {
   mode: Mode;
@@ -10,16 +11,30 @@ interface TopBarProps {
   currentTheme: any;
   showAIPanel?: boolean;
   setShowAIPanel?: (show: boolean) => void;
+  role: Role;
+  setRole: (role: Role) => void;
+  syncModeActive: boolean;
+  syncModeType: Mode | null;
+  currentScreen?: Screen;
+  setCurrentScreen?: (screen: Screen) => void;
 }
 
-export function TopBar({ mode, setMode, currentTheme, showAIPanel, setShowAIPanel }: TopBarProps) {
+export function TopBar({ mode, setMode, currentTheme, showAIPanel, setShowAIPanel, role, setRole, syncModeActive, syncModeType, currentScreen, setCurrentScreen }: TopBarProps) {
   const modes: Mode[] = ['Sprint', 'Focus', 'Chill'];
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showLockedShake, setShowLockedShake] = useState(false);
 
   const handleModeChange = (newMode: Mode) => {
+    // Members cannot change mode when Sync Mode is active
+    if (role === 'member' && syncModeActive) {
+      // Play shake animation
+      setShowLockedShake(true);
+      setTimeout(() => setShowLockedShake(false), 500);
+      return;
+    }
     setIsTransitioning(true);
     setMode(newMode);
-    setTimeout(() => setIsTransitioning(false), 1000);
+    setTimeout(() => setIsTransitioning(false), 650);
   };
 
   return (
@@ -67,37 +82,57 @@ export function TopBar({ mode, setMode, currentTheme, showAIPanel, setShowAIPane
         </div>
 
         {/* Mode Toggle */}
-        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-neutral-800/50 rounded-full p-1.5 backdrop-blur-sm">
-          {modes.map((m) => (
-            <motion.button
-              key={m}
-              onClick={() => handleModeChange(m)}
-              className={`px-6 py-2 rounded-full transition-all relative ${
-                mode === m
-                  ? 'text-white'
-                  : mode === 'Focus'
-                  ? 'text-neutral-500 hover:text-neutral-300'
-                  : 'text-neutral-400 hover:text-neutral-200'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              {mode === m && (
-                <motion.div
-                  className={`absolute inset-0 rounded-full ${
-                    m === 'Sprint' ? 'bg-red-500' : m === 'Chill' ? 'bg-blue-500' : 'bg-neutral-600'
-                  }`}
-                  layoutId="activeMode"
-                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                />
-              )}
-              <span className="relative z-10">{m}</span>
-            </motion.button>
-          ))}
-        </div>
+        <motion.div 
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 bg-neutral-800/50 rounded-full p-1.5 backdrop-blur-sm"
+          animate={showLockedShake ? { x: [-4, 4, -4, 4, 0] } : {}}
+          transition={{ duration: 0.3 }}
+        >
+          {modes.map((m) => {
+            const isLocked = role === 'member' && syncModeActive && m !== mode;
+            return (
+              <motion.button
+                key={m}
+                onClick={() => handleModeChange(m)}
+                disabled={isLocked}
+                className={`px-6 py-2 rounded-full transition-all relative group ${
+                  isLocked
+                    ? 'opacity-40 cursor-not-allowed'
+                    : mode === m
+                    ? 'text-white'
+                    : mode === 'Focus'
+                    ? 'text-neutral-500 hover:text-neutral-300'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+                whileHover={!isLocked ? { scale: 1.05 } : {}}
+                whileTap={!isLocked ? { scale: 0.95 } : {}}
+              >
+                {mode === m && (
+                  <motion.div
+                    className={`absolute inset-0 rounded-full ${
+                      m === 'Sprint' ? 'bg-red-500' : m === 'Chill' ? 'bg-blue-500' : 'bg-neutral-600'
+                    }`}
+                    layoutId="activeMode"
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  />
+                )}
+                <span className="relative z-10">{m}</span>
+                
+                {/* Locked tooltip */}
+                {isLocked && (
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 px-3 py-1 rounded-lg bg-neutral-900 text-neutral-300 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                    Locked during Sync Mode
+                  </div>
+                )}
+              </motion.button>
+            );
+          })}
+        </motion.div>
 
         {/* Profile Menu */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          {/* Role Toggle */}
+          <RoleToggle role={role} setRole={setRole} mode={mode} />
+          
           {/* AI Insights Toggle - Show in Focus Mode */}
           {mode === 'Focus' && setShowAIPanel && (
             <motion.button
@@ -136,6 +171,29 @@ export function TopBar({ mode, setMode, currentTheme, showAIPanel, setShowAIPane
           </motion.div>
         </div>
       </motion.header>
+      
+      {/* Sync Mode Banner for Members */}
+      {role === 'member' && syncModeActive && (
+        <motion.div
+          className={`px-6 py-3 flex items-center justify-center gap-3 ${
+            syncModeType === 'Sprint' ? 'bg-red-500/10 border-b-2 border-red-500/50' :
+            syncModeType === 'Focus' ? 'bg-neutral-300/30 border-b-2 border-neutral-400/50' :
+            'bg-blue-500/10 border-b-2 border-blue-500/50'
+          }`}
+          initial={{ y: -40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: -40, opacity: 0 }}
+        >
+          <Radio className={`w-4 h-4 ${
+            syncModeType === 'Sprint' ? 'text-red-500' :
+            syncModeType === 'Focus' ? 'text-neutral-600' :
+            'text-blue-500'
+          } animate-pulse`} />
+          <span className={mode === 'Chill' ? 'text-[#1E2A40]' : mode === 'Focus' ? 'text-neutral-900' : 'text-white'}>
+            Your PM has set the team to <strong>{syncModeType}</strong> mode (Sync Mode active)
+          </span>
+        </motion.div>
+      )}
     </>
   );
 }

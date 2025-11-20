@@ -1,7 +1,22 @@
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Search, Filter, Calendar, Flag, CheckCircle2, Circle, Sparkles, AlertCircle } from 'lucide-react';
-import { AppContextType } from '../../App';
-import { useState } from 'react';
+import { Plus, Filter, Search, Clock, AlertCircle, CheckCircle, Circle, MessageSquare, User, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Mode, AppContextType } from '../../App';
+import { useState, useEffect } from 'react';
+import { ThreadPanel } from '../communication/ThreadPanel';
+import { conversationManager } from '../../utils/conversationManager';
+
+interface Task {
+  id: string;
+  title: string;
+  status: 'To Do' | 'In Progress' | 'Blocked' | 'Done';
+  priority: 'High' | 'Medium' | 'Low';
+  dueDate: string;
+  assignee: string;
+  project: string;
+  description?: string;
+  unreadMessages?: number;
+  progress?: number;
+}
 
 interface TaskManagementProps {
   context: AppContextType;
@@ -12,31 +27,77 @@ export function TaskManagement({ context }: TaskManagementProps) {
   const isDark = mode !== 'Focus';
 
   const [filter, setFilter] = useState<'all' | 'today' | 'urgent'>('all');
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Q4 Financial Report', priority: 'high', dueDate: 'Today', completed: false, category: 'Finance', progress: 65 },
-    { id: 2, title: 'Client Presentation Deck', priority: 'high', dueDate: 'Today', completed: false, category: 'Sales', progress: 40 },
-    { id: 3, title: 'Review Design Mockups', priority: 'medium', dueDate: 'Tomorrow', completed: false, category: 'Design', progress: 80 },
-    { id: 4, title: 'Team Standup Notes', priority: 'low', dueDate: 'Today', completed: true, category: 'Management', progress: 100 },
-    { id: 5, title: 'Update Documentation', priority: 'medium', dueDate: 'Next Week', completed: false, category: 'Development', progress: 25 },
-    { id: 6, title: 'Budget Review Meeting Prep', priority: 'high', dueDate: 'Tomorrow', completed: false, category: 'Finance', progress: 10 },
-    { id: 7, title: 'Reply to non-urgent emails', priority: 'low', dueDate: 'This Week', completed: false, category: 'General', progress: 0 },
-    { id: 8, title: 'Organize project files', priority: 'low', dueDate: 'This Week', completed: false, category: 'General', progress: 0 },
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([
+    { 
+      id: '1', 
+      title: 'Implement user authentication flow', 
+      status: 'In Progress', 
+      priority: 'High', 
+      dueDate: 'Tomorrow', 
+      assignee: 'You',
+      project: 'Auth System',
+      description: 'Set up OAuth 2.0 with JWT tokens',
+      unreadMessages: 2
+    },
+    { 
+      id: '2', 
+      title: 'Design dashboard layout', 
+      status: 'Blocked', 
+      priority: 'High', 
+      dueDate: 'Today', 
+      assignee: 'Roi Santos',
+      project: 'Dashboard',
+      description: 'Create wireframes and mockups',
+    },
+    { 
+      id: '3', 
+      title: 'Write API documentation', 
+      status: 'To Do', 
+      priority: 'Medium', 
+      dueDate: 'Dec 20', 
+      assignee: 'Stephen Robiso',
+      project: 'Documentation',
+      description: 'Document all REST endpoints'
+    },
+    { 
+      id: '4', 
+      title: 'Fix responsive layout issues', 
+      status: 'Done', 
+      priority: 'Medium', 
+      dueDate: 'Dec 18', 
+      assignee: 'You',
+      project: 'Frontend',
+      description: 'Mobile and tablet breakpoints'
+    },
+    { 
+      id: '5', 
+      title: 'Set up CI/CD pipeline', 
+      status: 'In Progress', 
+      priority: 'Low', 
+      dueDate: 'Next week', 
+      assignee: 'Stephen Robiso',
+      project: 'DevOps',
+      description: 'GitHub Actions workflow',
+      unreadMessages: 3
+    },
   ]);
 
-  const toggleTask = (id: number) => {
+  const toggleTask = (id: string) => {
     setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed, progress: !task.completed ? 100 : task.progress } : task
+      task.id === id ? { ...task, status: task.status === 'Done' ? 'To Do' : 'Done' } : task
     ));
   };
 
   const getPrioritySize = (priority: string) => {
     if (mode === 'Sprint') {
-      if (priority === 'high') return 'scale-110';
-      if (priority === 'medium') return 'scale-100';
+      if (priority === 'High') return 'scale-110';
+      if (priority === 'Medium') return 'scale-100';
       return 'scale-90 opacity-40';
     }
     if (mode === 'Chill') {
-      if (priority === 'low') return 'scale-100';
+      if (priority === 'Low') return 'scale-100';
       return 'scale-95 opacity-60';
     }
     return 'scale-100';
@@ -44,16 +105,16 @@ export function TaskManagement({ context }: TaskManagementProps) {
 
   const filteredTasks = tasks.filter(task => {
     if (filter === 'today') return task.dueDate === 'Today';
-    if (filter === 'urgent') return task.priority === 'high';
+    if (filter === 'urgent') return task.priority === 'High';
     
     // Mode-specific filtering
-    if (mode === 'Sprint') return task.priority !== 'low';
-    if (mode === 'Chill') return task.priority === 'low' || task.priority === 'medium';
+    if (mode === 'Sprint') return task.priority !== 'Low';
+    if (mode === 'Chill') return task.priority === 'Low' || task.priority === 'Medium';
     
     return true;
   }).sort((a, b) => {
     // Priority-based sorting
-    const priorityOrder = { high: 3, medium: 2, low: 1 };
+    const priorityOrder = { High: 3, Medium: 2, Low: 1 };
     if (mode === 'Sprint') {
       return priorityOrder[b.priority as keyof typeof priorityOrder] - priorityOrder[a.priority as keyof typeof priorityOrder];
     }
@@ -64,9 +125,28 @@ export function TaskManagement({ context }: TaskManagementProps) {
   });
 
   // Group by priority for Sprint mode
-  const urgentTasks = filteredTasks.filter(t => t.priority === 'high');
-  const mediumTasks = filteredTasks.filter(t => t.priority === 'medium');
-  const lowTasks = filteredTasks.filter(t => t.priority === 'low');
+  const urgentTasks = filteredTasks.filter(t => t.priority === 'High');
+  const mediumTasks = filteredTasks.filter(t => t.priority === 'Medium');
+  const lowTasks = filteredTasks.filter(t => t.priority === 'Low');
+
+  // Update tasks with unread message counts from conversation manager
+  useEffect(() => {
+    const updateUnreadCounts = () => {
+      const updatedTasks = tasks.map(task => ({
+        ...task,
+        unreadMessages: conversationManager.getUnreadCount(task.id)
+      }));
+      setTasks(updatedTasks);
+    };
+    
+    // Update initially
+    updateUnreadCounts();
+    
+    // Update when drawer closes
+    if (!drawerOpen) {
+      updateUnreadCounts();
+    }
+  }, [drawerOpen]);
 
   return (
     <div className={`${mode === 'Sprint' ? 'p-6' : mode === 'Chill' ? 'p-12' : 'p-8'} ${mode === 'Focus' ? 'max-w-3xl' : 'max-w-7xl'} mx-auto`}>
@@ -81,7 +161,7 @@ export function TaskManagement({ context }: TaskManagementProps) {
             {mode === 'Sprint' ? 'Priority Queue' : mode === 'Chill' ? 'Light Tasks' : 'Task Management'}
           </h1>
           <p className={mode === 'Chill' ? 'text-[#3A4A62]' : isDark ? 'text-neutral-400' : 'text-neutral-600'}>
-            {filteredTasks.length} tasks · {tasks.filter(t => !t.completed).length} active
+            {filteredTasks.length} tasks · {tasks.filter(t => t.status !== 'Done').length} active
           </p>
         </div>
         <motion.button
@@ -157,39 +237,62 @@ export function TaskManagement({ context }: TaskManagementProps) {
                     <div className="flex items-start gap-4">
                       <motion.button
                         onClick={() => toggleTask(task.id)}
-                        className={`mt-1 w-7 h-7 rounded-lg border-2 flex items-center justify-center ${task.completed ? 'bg-red-500 border-red-500' : 'border-red-500'}`}
+                        className={`mt-1 w-7 h-7 rounded-lg border-2 flex items-center justify-center ${task.status === 'Done' ? 'bg-red-500 border-red-500' : 'border-red-500'}`}
                         whileTap={{ scale: 0.9 }}
                       >
-                        {task.completed && <CheckCircle2 className="w-5 h-5 text-white" />}
+                        {task.status === 'Done' && <CheckCircle2 className="w-5 h-5 text-white" />}
                       </motion.button>
                       
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="px-3 py-1 rounded-full text-xs bg-red-600 text-white uppercase tracking-wide">URGENT</span>
-                          <span className="text-neutral-400 text-sm">{task.category}</span>
+                          <span className="text-neutral-400 text-sm">{task.project}</span>
                         </div>
-                        <h3 className={`text-white text-xl mb-2 ${task.completed ? 'line-through' : ''}`}>{task.title}</h3>
+                        <h3 className={`text-white text-xl mb-2 ${task.status === 'Done' ? 'line-through' : ''}`}>{task.title}</h3>
                         <div className="flex items-center gap-4 text-sm">
                           <div className="flex items-center gap-1 text-red-400">
-                            <Calendar className="w-4 h-4" />
+                            <Clock className="w-4 h-4" />
                             <span>{task.dueDate}</span>
                           </div>
                         </div>
                         
-                        {!task.completed && (
+                        {task.status !== 'Done' && (
                           <div className="mt-3 flex items-center gap-3">
                             <div className="flex-1 h-2 rounded-full bg-neutral-800 overflow-hidden">
                               <motion.div
                                 className="h-full bg-red-500"
                                 initial={{ width: 0 }}
-                                animate={{ width: `${task.progress}%` }}
+                                animate={{ width: `${task.progress || 0}%` }}
                                 transition={{ duration: 0.8 }}
                               />
                             </div>
-                            <span className="text-red-400 text-sm">{task.progress}%</span>
+                            <span className="text-red-400 text-sm">{task.progress || 0}%</span>
                           </div>
                         )}
                       </div>
+                      
+                      {/* Message Button with Unread Indicator */}
+                      <motion.button
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setDrawerOpen(true);
+                        }}
+                        className="relative ml-auto p-3 rounded-xl hover:bg-red-500/20 transition-colors border border-red-500/30"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <MessageSquare className="w-5 h-5 text-red-400" />
+                        {task.unreadMessages && task.unreadMessages > 0 && (
+                          <motion.div 
+                            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center border-2 border-neutral-900"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                          >
+                            <span className="text-white text-xs">{task.unreadMessages}</span>
+                          </motion.div>
+                        )}
+                      </motion.button>
                     </div>
                   </motion.div>
                 ))}
@@ -214,13 +317,36 @@ export function TaskManagement({ context }: TaskManagementProps) {
                     <div className="flex items-center gap-3">
                       <motion.button
                         onClick={() => toggleTask(task.id)}
-                        className={`w-5 h-5 rounded border-2 ${task.completed ? 'bg-neutral-600 border-neutral-600' : 'border-neutral-600'}`}
+                        className={`w-5 h-5 rounded border-2 ${task.status === 'Done' ? 'bg-neutral-600 border-neutral-600' : 'border-neutral-600'}`}
                         whileTap={{ scale: 0.9 }}
                       >
-                        {task.completed && <CheckCircle2 className="w-4 h-4 text-white" />}
+                        {task.status === 'Done' && <CheckCircle2 className="w-4 h-4 text-white" />}
                       </motion.button>
-                      <span className={`flex-1 text-white ${task.completed ? 'line-through' : ''}`}>{task.title}</span>
-                      <span className="text-neutral-500 text-sm">{task.progress}%</span>
+                      <span className={`flex-1 text-white ${task.status === 'Done' ? 'line-through' : ''}`}>{task.title}</span>
+                      <span className="text-neutral-500 text-sm">{task.progress || 0}%</span>
+                      
+                      {/* Message Button with Unread Indicator */}
+                      <motion.button
+                        onClick={() => {
+                          setSelectedTask(task);
+                          setDrawerOpen(true);
+                        }}
+                        className="relative p-2 rounded-lg hover:bg-neutral-800 transition-colors"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <MessageSquare className="w-4 h-4 text-neutral-400" />
+                        {task.unreadMessages && task.unreadMessages > 0 && (
+                          <motion.div 
+                            className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-red-500 flex items-center justify-center border border-neutral-900"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                          >
+                            <span className="text-white text-[10px]">{task.unreadMessages}</span>
+                          </motion.div>
+                        )}
+                      </motion.button>
                     </div>
                   </motion.div>
                 ))}
@@ -236,26 +362,49 @@ export function TaskManagement({ context }: TaskManagementProps) {
           {filteredTasks.map((task, index) => (
             <motion.div
               key={task.id}
-              className="p-8 rounded-3xl bg-[var(--component-bg-card)] border border-[var(--color-border-soft)] shadow-[var(--shadow-medium)]"
+              className="p-8 rounded-3xl bg-[var(--component-bg-card)] border border-[var(--color-border-soft)] shadow-[var(--shadow-medium)] relative"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.02, y: -4 }}
             >
+              {/* Message Button - Top Right */}
+              <motion.button
+                onClick={() => {
+                  setSelectedTask(task);
+                  setDrawerOpen(true);
+                }}
+                className="absolute top-4 right-4 p-2.5 rounded-xl hover:bg-[var(--neutral-200)] transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <MessageSquare className="w-5 h-5 text-[var(--text-secondary)]" />
+                {task.unreadMessages && task.unreadMessages > 0 && (
+                  <motion.div 
+                    className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-[#6CA8FF] flex items-center justify-center border-2 border-white"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                  >
+                    <span className="text-white text-xs">{task.unreadMessages}</span>
+                  </motion.div>
+                )}
+              </motion.button>
+              
               <div className="flex items-start gap-4 mb-4">
                 <motion.button
                   onClick={() => toggleTask(task.id)}
-                  className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center ${task.completed ? 'bg-[var(--color-accent-primary)] border-[var(--color-accent-primary)]' : 'border-[var(--neutral-400)]'}`}
+                  className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center ${task.status === 'Done' ? 'bg-[var(--color-accent-primary)] border-[var(--color-accent-primary)]' : 'border-[var(--neutral-400)]'}`}
                   whileTap={{ scale: 0.9 }}
                 >
-                  {task.completed && <CheckCircle2 className="w-5 h-5 text-white" />}
+                  {task.status === 'Done' && <CheckCircle2 className="w-5 h-5 text-white" />}
                 </motion.button>
-                <div className="flex-1">
-                  <h3 className={`text-[var(--text-primary)] text-lg mb-2 ${task.completed ? 'line-through' : ''}`}>{task.title}</h3>
-                  <span className="text-[var(--text-secondary)]">{task.category}</span>
+                <div className="flex-1 pr-8">
+                  <h3 className={`text-[var(--text-primary)] text-lg mb-2 ${task.status === 'Done' ? 'line-through' : ''}`}>{task.title}</h3>
+                  <span className="text-[var(--text-secondary)]">{task.project}</span>
                 </div>
               </div>
-              {!task.completed && task.progress > 0 && (
+              {task.status !== 'Done' && task.progress && task.progress > 0 && (
                 <div className="mt-4">
                   <div className="h-2 rounded-full bg-[var(--neutral-200)] overflow-hidden">
                     <motion.div
@@ -287,10 +436,10 @@ export function TaskManagement({ context }: TaskManagementProps) {
               <div className="flex items-center gap-4">
                 <motion.button
                   onClick={() => toggleTask(task.id)}
-                  className={`w-[22px] h-[22px] rounded-lg border-2 flex items-center justify-center flex-shrink-0 ${task.completed ? 'bg-neutral-600 border-neutral-600' : 'border-neutral-300'}`}
+                  className={`w-[22px] h-[22px] rounded-lg border-2 flex items-center justify-center flex-shrink-0 ${task.status === 'Done' ? 'bg-neutral-600 border-neutral-600' : 'border-neutral-300'}`}
                   whileTap={{ scale: 0.9 }}
                 >
-                  {task.completed && (
+                  {task.status === 'Done' && (
                     <motion.div 
                       className="w-[10px] h-[10px] bg-white rounded-full"
                       initial={{ scale: 0 }}
@@ -301,20 +450,20 @@ export function TaskManagement({ context }: TaskManagementProps) {
                 </motion.button>
                 
                 <div className="flex-1">
-                  <h3 className={`text-neutral-900 mb-1 ${task.completed ? 'line-through' : ''}`}>{task.title}</h3>
+                  <h3 className={`text-neutral-900 mb-1 ${task.status === 'Done' ? 'line-through' : ''}`}>{task.title}</h3>
                   <div className="flex items-center gap-3">
                     <span className={`px-2 py-1 rounded text-xs ${
-                      task.priority === 'high' ? 'bg-red-100 text-red-700' :
-                      task.priority === 'medium' ? 'bg-yellow-100 text-yellow-700' :
+                      task.priority === 'High' ? 'bg-red-100 text-red-700' :
+                      task.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
                       'bg-green-100 text-green-700'
                     }`}>
                       {task.priority.toUpperCase()}
                     </span>
-                    <span className="text-neutral-600 text-sm">{task.category}</span>
+                    <span className="text-neutral-600 text-sm">{task.project}</span>
                     <span className="text-neutral-500 text-sm">{task.dueDate}</span>
                   </div>
                   
-                  {!task.completed && (
+                  {!task.status === 'Done' && (
                     <div className="mt-3 flex items-center gap-3">
                       <div className="flex-1 h-2 rounded-full bg-neutral-200 overflow-hidden">
                         <motion.div
@@ -328,10 +477,44 @@ export function TaskManagement({ context }: TaskManagementProps) {
                     </div>
                   )}
                 </div>
+                
+                {/* Message Button with Unread Indicator */}
+                <motion.button
+                  onClick={() => {
+                    setSelectedTask(task);
+                    setDrawerOpen(true);
+                  }}
+                  className="relative ml-auto p-2 rounded-lg hover:bg-neutral-200 transition-colors"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <MessageSquare className="w-5 h-5 text-neutral-600" />
+                  {task.unreadMessages && task.unreadMessages > 0 && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 flex items-center justify-center">
+                      <span className="text-white text-xs">{task.unreadMessages}</span>
+                    </div>
+                  )}
+                </motion.button>
               </div>
             </motion.div>
           ))}
         </div>
+      )}
+      
+      {/* Communication Drawer */}
+      {selectedTask && (
+        <ThreadPanel
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          taskId={selectedTask.id}
+          taskTitle={selectedTask.title}
+          projectName={selectedTask.project}
+          assignees={[selectedTask.assignee]}
+          status={selectedTask.status}
+          mode={mode}
+          currentUserRole={context.role}
+          syncModeActive={context.syncModeActive}
+        />
       )}
     </div>
   );

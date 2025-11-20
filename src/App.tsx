@@ -1,18 +1,26 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Sidebar } from './components/Sidebar';
+import { MemberSidebar } from './components/MemberSidebar';
+import { PMSidebar } from './components/PMSidebar';
 import { TopBar } from './components/TopBar';
-import { AIInsightsPanel } from './components/AIInsightsPanel';
+import { MemberAIGuide } from './components/MemberAIGuide';
+import { PMAIGuide } from './components/PMAIGuide';
+import { ModeTransitionOverlay } from './components/ModeTransitionOverlay';
+import { SyncModeToast } from './components/SyncModeToast';
 import { LandingScreen } from './components/screens/LandingScreen';
 import { HomeDashboard } from './components/screens/HomeDashboard';
 import { TaskManagement } from './components/screens/TaskManagement';
 import { NotificationCenter } from './components/screens/NotificationCenter';
 import { TeamEngagement } from './components/screens/TeamEngagement';
 import { SettingsScreen } from './components/screens/SettingsScreen';
+import { PMDashboard } from './components/screens/PMDashboard';
+import { IntegrationsScreen } from './components/screens/IntegrationsScreen';
+import { PMTaskDiscussions } from './components/screens/PMTaskDiscussions';
 import { FaviconManager } from './components/FaviconManager';
 
 export type Mode = 'Sprint' | 'Focus' | 'Chill';
-export type Screen = 'welcome' | 'home' | 'tasks' | 'notifications' | 'team' | 'insights' | 'settings';
+export type Screen = 'welcome' | 'home' | 'tasks' | 'notifications' | 'team' | 'insights' | 'settings' | 'pm' | 'integrations' | 'workload' | 'taskdiscussions';
+export type Role = 'member' | 'pm';
 
 export interface AppContextType {
   mode: Mode;
@@ -21,6 +29,10 @@ export interface AppContextType {
   setCurrentScreen: (screen: Screen) => void;
   showAIPanel: boolean;
   setShowAIPanel: (show: boolean) => void;
+  role: Role;
+  setRole: (role: Role) => void;
+  syncModeActive: boolean;
+  syncModeType: Mode | null;
 }
 
 export default function App() {
@@ -29,6 +41,36 @@ export default function App() {
   const [showAIPanel, setShowAIPanel] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [role, setRole] = useState<Role>(() => {
+    // Persist role selection in localStorage
+    const saved = localStorage.getItem('cohesion-role');
+    return (saved as Role) || 'member';
+  });
+  const [syncModeActive, setSyncModeActive] = useState(false);
+  const [syncModeType, setSyncModeType] = useState<Mode | null>(null);
+  const [previousSyncState, setPreviousSyncState] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // Track sync mode state changes for toast notifications
+  useEffect(() => {
+    if (syncModeActive !== previousSyncState) {
+      setPreviousSyncState(syncModeActive);
+    }
+  }, [syncModeActive, previousSyncState]);
+
+  // Sync mode changes should trigger transitions
+  useEffect(() => {
+    if (syncModeActive && syncModeType) {
+      setIsTransitioning(true);
+      setMode(syncModeType);
+      setTimeout(() => setIsTransitioning(false), 650);
+    }
+  }, [syncModeActive, syncModeType]);
+
+  // Save role to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('cohesion-role', role);
+  }, [role]);
 
   // Theme configuration for each mode
   const modeThemes = {
@@ -107,6 +149,10 @@ export default function App() {
     setCurrentScreen,
     showAIPanel,
     setShowAIPanel,
+    role,
+    setRole,
+    syncModeActive,
+    syncModeType,
   };
 
   const renderScreen = () => {
@@ -123,6 +169,12 @@ export default function App() {
         return <TeamEngagement context={appContext} />;
       case 'settings':
         return <SettingsScreen context={appContext} />;
+      case 'pm':
+        return <PMDashboard context={appContext} />;
+      case 'integrations':
+        return <IntegrationsScreen context={appContext} />;
+      case 'taskdiscussions':
+        return <PMTaskDiscussions context={appContext} />;
       default:
         return <HomeDashboard context={appContext} />;
     }
@@ -136,6 +188,22 @@ export default function App() {
     <>
       {/* Favicon Manager - updates favicon based on current mode */}
       <FaviconManager mode={mode} />
+      
+      {/* Mode Transition Overlay */}
+      <ModeTransitionOverlay
+        mode={mode}
+        isTransitioning={isTransitioning}
+        syncModeActive={syncModeActive}
+        syncModeType={syncModeType}
+      />
+
+      {/* Sync Mode Toast Notifications */}
+      <SyncModeToast
+        syncModeActive={syncModeActive}
+        syncModeType={syncModeType}
+        role={role}
+        previousSyncState={previousSyncState}
+      />
       
       <motion.div
         key={mode}
@@ -151,17 +219,34 @@ export default function App() {
           currentTheme={currentTheme}
           showAIPanel={showAIPanel}
           setShowAIPanel={setShowAIPanel}
+          role={role}
+          setRole={setRole}
+          syncModeActive={syncModeActive}
+          syncModeType={syncModeType}
+          currentScreen={currentScreen}
+          setCurrentScreen={setCurrentScreen}
         />
         
         <div className="flex h-[calc(100vh-64px)]">
-          <Sidebar
-            currentScreen={currentScreen}
-            setCurrentScreen={setCurrentScreen}
-            collapsed={sidebarCollapsed}
-            setCollapsed={setSidebarCollapsed}
-            mode={mode}
-            currentTheme={currentTheme}
-          />
+          {role === 'member' ? (
+            <MemberSidebar
+              currentScreen={currentScreen}
+              setCurrentScreen={setCurrentScreen}
+              collapsed={sidebarCollapsed}
+              setCollapsed={setSidebarCollapsed}
+              mode={mode}
+              currentTheme={currentTheme}
+            />
+          ) : (
+            <PMSidebar
+              currentScreen={currentScreen}
+              setCurrentScreen={setCurrentScreen}
+              collapsed={sidebarCollapsed}
+              setCollapsed={setSidebarCollapsed}
+              mode={mode}
+              currentTheme={currentTheme}
+            />
+          )}
           
           <motion.main
             className="flex-1 overflow-auto"
@@ -182,12 +267,20 @@ export default function App() {
           </motion.main>
 
           {showAIPanel && currentScreen !== 'welcome' && (
-            <AIInsightsPanel
-              mode={mode}
-              currentTheme={currentTheme}
-              onClose={() => setShowAIPanel(false)}
-              context={appContext}
-            />
+            role === 'member' ? (
+              <MemberAIGuide
+                mode={mode}
+                currentTheme={currentTheme}
+                onClose={() => setShowAIPanel(false)}
+              />
+            ) : (
+              <PMAIGuide
+                mode={mode}
+                currentTheme={currentTheme}
+                onClose={() => setShowAIPanel(false)}
+                context={appContext}
+              />
+            )
           )}
         </div>
       </motion.div>

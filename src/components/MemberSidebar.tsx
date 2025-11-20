@@ -1,30 +1,32 @@
 import { motion } from 'motion/react';
-import { Home, CheckSquare, Bell, Users, Sparkles, Settings, ChevronLeft, ChevronRight, LayoutDashboard, Puzzle } from 'lucide-react';
-import { Screen, Mode, Role } from '../App';
+import { Home, CheckSquare, Bell, Users, Settings, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
+import { Screen, Mode } from '../App';
 
-interface SidebarProps {
+interface MemberSidebarProps {
   currentScreen: Screen;
   setCurrentScreen: (screen: Screen) => void;
   collapsed: boolean;
   setCollapsed: (collapsed: boolean) => void;
   mode: Mode;
   currentTheme: any;
-  role: Role;
 }
 
-export function Sidebar({ currentScreen, setCurrentScreen, collapsed, setCollapsed, mode, currentTheme, role }: SidebarProps) {
+export function MemberSidebar({ 
+  currentScreen, 
+  setCurrentScreen, 
+  collapsed, 
+  setCollapsed, 
+  mode, 
+  currentTheme 
+}: MemberSidebarProps) {
+  // Member-only navigation - no PM screens visible
   const navItems = [
-    { id: 'home' as Screen, icon: Home, label: 'Home', roles: ['member', 'pm'] },
-    { id: 'tasks' as Screen, icon: CheckSquare, label: 'Tasks', roles: ['member', 'pm'] },
-    { id: 'notifications' as Screen, icon: Bell, label: 'Notifications', roles: ['member', 'pm'] },
-    { id: 'team' as Screen, icon: Users, label: 'Team Energy', roles: ['member', 'pm'] },
-    { id: 'pm' as Screen, icon: LayoutDashboard, label: 'PM Dashboard', roles: ['pm'] },
-    { id: 'integrations' as Screen, icon: Puzzle, label: 'Integrations', roles: ['pm'] },
-    { id: 'settings' as Screen, icon: Settings, label: 'Settings', roles: ['member', 'pm'] },
+    { id: 'home' as Screen, icon: Home, label: 'Home' },
+    { id: 'tasks' as Screen, icon: CheckSquare, label: 'Tasks' },
+    { id: 'notifications' as Screen, icon: Bell, label: 'Notifications' },
+    { id: 'team' as Screen, icon: Users, label: 'Team Energy' },
+    { id: 'settings' as Screen, icon: Settings, label: 'Settings' },
   ];
-
-  // Filter nav items based on role
-  const visibleNavItems = navItems.filter(item => item.roles.includes(role));
 
   return (
     <motion.aside
@@ -40,8 +42,24 @@ export function Sidebar({ currentScreen, setCurrentScreen, collapsed, setCollaps
       transition={{ duration: 0.3, ease: 'easeInOut' }}
     >
       <div className="flex flex-col h-full p-4">
+        {/* Member Mode Label */}
+        {!collapsed && (
+          <motion.div
+            className="mb-4 pb-3 border-b border-neutral-700/30"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <p className={`text-xs uppercase tracking-wider ${
+              mode === 'Chill' ? 'text-[#7888A0]' : mode === 'Focus' ? 'text-neutral-500' : 'text-neutral-500'
+            }`}>
+              Member Mode
+            </p>
+          </motion.div>
+        )}
+
         <nav className="flex-1 space-y-2">
-          {visibleNavItems.map((item) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentScreen === item.id;
             
@@ -75,7 +93,7 @@ export function Sidebar({ currentScreen, setCurrentScreen, collapsed, setCollaps
           })}
         </nav>
 
-        {/* AI Insights Toggle - Only visible when not collapsed */}
+        {/* AI Insights Status - Only visible when not collapsed */}
         {!collapsed && (
           <motion.div
             className={`mb-3 p-3 rounded-xl ${
@@ -89,10 +107,10 @@ export function Sidebar({ currentScreen, setCurrentScreen, collapsed, setCollaps
           >
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className={`w-4 h-4 ${mode === 'Sprint' ? 'text-red-500' : mode === 'Chill' ? 'text-[var(--color-accent-primary)]' : 'text-neutral-600'}`} />
-              <span className={`text-xs ${mode === 'Chill' ? 'text-[var(--color-text-primary)]' : mode === 'Focus' ? 'text-neutral-900' : 'text-white'}`}>AI Insights</span>
+              <span className={`text-xs ${mode === 'Chill' ? 'text-[var(--color-text-primary)]' : mode === 'Focus' ? 'text-neutral-900' : 'text-white'}`}>Personal AI Guide</span>
             </div>
             <p className={`text-xs ${mode === 'Chill' ? 'text-[var(--color-text-muted)]' : mode === 'Focus' ? 'text-neutral-600' : 'text-neutral-400'}`}>
-              {mode === 'Sprint' ? 'Critical alerts active' : mode === 'Focus' ? 'Minimized view' : 'Wellness mode'}
+              {mode === 'Sprint' ? 'Critical alerts active' : mode === 'Focus' ? 'Deep focus mode' : 'Wellness & reflection'}
             </p>
           </motion.div>
         )}

@@ -12,12 +12,12 @@ export function TeamEngagement({ context }: TeamEngagementProps) {
   const isChill = mode === 'Chill';
 
   const teamMembers = [
-    { name: 'Sarah Chen', role: 'Designer', energy: 85, status: 'Focus', avatar: 'SC', available: true, currentTask: 'UI Mockups' },
-    { name: 'Mike Johnson', role: 'Developer', energy: 72, status: 'Sprint', avatar: 'MJ', available: true, currentTask: 'API Integration' },
-    { name: 'Emma Davis', role: 'Product Manager', energy: 90, status: 'Chill', avatar: 'ED', available: false, currentTask: 'On Break' },
-    { name: 'Alex Rodriguez', role: 'Developer', energy: 68, status: 'Focus', avatar: 'AR', available: true, currentTask: 'Code Review' },
-    { name: 'Lisa Wang', role: 'Marketing', energy: 78, status: 'Sprint', avatar: 'LW', available: true, currentTask: 'Campaign Plan' },
-    { name: 'Tom Brown', role: 'Designer', energy: 82, status: 'Focus', avatar: 'TB', available: true, currentTask: 'Brand Guidelines' },
+    { name: 'Roi Santos', role: 'Designer', energy: 85, status: 'Focus', avatar: 'RS', available: true, currentTask: 'UI Mockups' },
+    { name: 'Stephen Robiso', role: 'Developer', energy: 72, status: 'Sprint', avatar: 'SR', available: true, currentTask: 'API Integration' },
+    { name: 'Angelie Barrientos', role: 'Product Manager', energy: 90, status: 'Chill', avatar: 'AB', available: false, currentTask: 'On Break' },
+    { name: 'Shane Binuya', role: 'Developer', energy: 68, status: 'Focus', avatar: 'SB', available: true, currentTask: 'Code Review' },
+    { name: 'Sebastian Bien', role: 'Marketing', energy: 78, status: 'Sprint', avatar: 'SB', available: true, currentTask: 'Campaign Plan' },
+    { name: 'Daniel Vibar', role: 'Designer', energy: 82, status: 'Focus', avatar: 'DV', available: true, currentTask: 'Brand Guidelines' },
   ];
 
   const teamStats = [
@@ -94,11 +94,11 @@ export function TeamEngagement({ context }: TeamEngagementProps) {
       <motion.div
         className={`mb-10 p-8 rounded-3xl ${
           mode === 'Sprint' 
-            ? 'bg-gradient-to-br from-neutral-900/60 via-neutral-900/50 to-neutral-900/60 border-red-500/20' 
+            ? 'bg-gradient-to-br from-neutral-900/60 via-neutral-900/50 to-neutral-900/60 border-red-500/20 shadow-[0_0_60px_-12px_rgba(255,74,74,0.3)]' 
             : mode === 'Chill' 
-            ? 'border-[var(--color-border-soft)] shadow-[var(--shadow-glow)]' 
+            ? 'border-[var(--color-border-soft)] shadow-[0_0_40px_-12px_rgba(108,168,255,0.3)]' 
             : 'bg-white/70 border-neutral-300/30'
-        } border backdrop-blur-xl ${mode === 'Sprint' ? 'shadow-[0_0_60px_-12px_rgba(255,74,74,0.2)]' : ''}`}
+        } border backdrop-blur-xl`}
         style={mode === 'Chill' ? { background: 'var(--component-bg-section)' } : {}}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
