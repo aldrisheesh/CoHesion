@@ -72,6 +72,13 @@ export default function App() {
     localStorage.setItem('cohesion-role', role);
   }, [role]);
 
+  useEffect(() => {
+    // Ensure navigation resets to the appropriate home view when switching roles
+    if (currentScreen !== 'welcome' && currentScreen !== 'home') {
+      setCurrentScreen('home');
+    }
+  }, [role, currentScreen]);
+
   // Theme configuration for each mode
   const modeThemes = {
     Sprint: {
