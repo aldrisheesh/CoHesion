@@ -131,7 +131,13 @@ export function TopBar({ mode, setMode, currentTheme, showAIPanel, setShowAIPane
         {/* Profile Menu */}
         <div className="flex items-center gap-4">
           {/* Role Toggle */}
-          <RoleToggle role={role} setRole={setRole} mode={mode} />
+          <RoleToggle
+            role={role}
+            setRole={setRole}
+            mode={mode}
+            currentScreen={currentScreen}
+            setCurrentScreen={setCurrentScreen}
+          />
           
           {/* AI Insights Toggle - Show in Focus Mode */}
           {mode === 'Focus' && setShowAIPanel && (

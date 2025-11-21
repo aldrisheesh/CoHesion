@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { MemberSidebar } from './components/MemberSidebar';
 import { PMSidebar } from './components/PMSidebar';
@@ -70,6 +70,16 @@ export default function App() {
   // Save role to localStorage when it changes
   useEffect(() => {
     localStorage.setItem('cohesion-role', role);
+  }, [role]);
+
+  const previousRoleRef = useRef<Role>(role);
+
+  useEffect(() => {
+    // Ensure navigation resets to the appropriate home view only when switching roles
+    if (previousRoleRef.current !== role) {
+      previousRoleRef.current = role;
+      setCurrentScreen('home');
+    }
   }, [role]);
 
   // Theme configuration for each mode
