@@ -1,5 +1,5 @@
 import { motion } from 'motion/react';
-import { TrendingUp, CheckCircle2, Clock, Zap, Brain, Users, AlertCircle, Coffee, Target, Activity } from 'lucide-react';
+import { TrendingUp, CheckCircle2, Clock, Zap, Brain, Users, AlertCircle, Coffee, Target, Activity, Send } from 'lucide-react';
 import { Mode } from '../../../App';
 
 interface MemberHomeViewProps {
@@ -305,12 +305,21 @@ export function MemberHomeView({ mode }: MemberHomeViewProps) {
           </div>
           <div className="space-y-4">
             <p className="text-[var(--text-secondary)]">What went well today?</p>
-            <motion.textarea
-              className="w-full px-4 py-3 rounded-xl bg-[var(--surface-hover)] border border-[var(--color-border-soft)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--color-accent-primary)]/50 resize-none"
-              rows={4}
-              placeholder="Completed the client presentation..."
-              whileFocus={{ scale: 1.01 }}
-            />
+            <div className="relative">
+              <motion.textarea
+                className="w-full px-4 py-3 pr-14 rounded-xl bg-[var(--surface-hover)] border border-[var(--color-border-soft)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-[var(--color-accent-primary)]/50 resize-none"
+                rows={4}
+                placeholder="Completed the client presentation..."
+                whileFocus={{ scale: 1.01 }}
+              />
+              <motion.button
+                className="absolute right-3 bottom-3 w-10 h-10 rounded-full bg-[var(--color-accent-primary)] flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Send className="w-5 h-5 text-white" />
+              </motion.button>
+            </div>
           </div>
         </motion.div>
 
