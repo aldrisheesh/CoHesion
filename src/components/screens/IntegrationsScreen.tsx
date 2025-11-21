@@ -2,6 +2,17 @@ import { motion } from 'motion/react';
 import { AppContextType } from '../../App';
 import { CheckCircle2, ExternalLink, Settings, Key } from 'lucide-react';
 import { useState, ReactNode } from 'react';
+import slackLogo from '../../assets/slack-svgrepo-com.svg';
+import teamsLogo from '../../assets/microsoft-teams-svgrepo-com.svg';
+import gcalLogo from '../../assets/google-calendar-svgrepo-com.svg';
+import gdriveLogo from '../../assets/google-drive-svgrepo-com.svg';
+import dropboxLogo from '../../assets/dropbox-svgrepo-com.svg';
+import zoomLogo from '../../assets/zoom-svgrepo-com.svg';
+import asanaLogo from '../../assets/asana-svgrepo-com.svg';
+import clickupLogo from '../../assets/clickup-svgrepo-com.svg';
+import jiraLogo from '../../assets/jira-svgrepo-com.svg';
+import hubspotLogo from '../../assets/hubspot-svgrepo-com.svg';
+import salesforceLogo from '../../assets/salesforce-2-logo-svgrepo-com.svg';
 
 interface IntegrationsScreenProps {
   context: AppContextType;
@@ -18,97 +29,17 @@ interface Integration {
 }
 
 const integrationLogos: Record<string, ReactNode> = {
-  slack: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <rect x="5" y="26" width="12" height="12" rx="6" fill="#36C5F0" />
-      <rect x="17" y="26" width="12" height="33" rx="6" fill="#36C5F0" />
-      <rect x="26" y="5" width="12" height="12" rx="6" fill="#E01E5A" />
-      <rect x="26" y="17" width="33" height="12" rx="6" fill="#E01E5A" />
-      <rect x="26" y="47" width="12" height="12" rx="6" fill="#2EB67D" />
-      <rect x="26" y="35" width="33" height="12" rx="6" fill="#2EB67D" />
-      <rect x="47" y="26" width="12" height="12" rx="6" fill="#ECB22E" />
-      <rect x="35" y="26" width="12" height="33" rx="6" fill="#ECB22E" />
-    </svg>
-  ),
-  teams: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <rect x="6" y="18" width="20" height="28" rx="4" fill="#5C62D6" />
-      <rect x="24" y="14" width="28" height="36" rx="6" fill="#3B45B7" />
-      <rect x="30" y="20" width="12" height="4" rx="2" fill="#E8EBFF" />
-      <rect x="30" y="26" width="8" height="4" rx="2" fill="#E8EBFF" />
-      <circle cx="50" cy="18" r="6" fill="#5C62D6" />
-    </svg>
-  ),
-  gcal: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <rect x="10" y="10" width="44" height="44" rx="8" fill="#1A73E8" />
-      <rect x="10" y="18" width="44" height="10" fill="#185ABC" />
-      <path d="M16 10c0-2.2 1.8-4 4-4h24c2.2 0 4 1.8 4 4v8H16v-8Z" fill="#8AB4F8" />
-      <text x="32" y="44" textAnchor="middle" fontSize="18" fontWeight="700" fill="#F1F3F4" fontFamily="'Inter', system-ui">31</text>
-    </svg>
-  ),
-  gdrive: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <polygon points="24,8 40,8 56,36 40,36" fill="#4285F4" />
-      <polygon points="24,8 40,36 24,56 8,28" fill="#34A853" />
-      <polygon points="8,28 24,56 40,56 56,28 40,28 32,42 24,28" fill="#FBBC04" />
-    </svg>
-  ),
-  dropbox: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <polygon points="22,10 32,18 22,26 12,18" fill="#0061FF" />
-      <polygon points="42,10 52,18 42,26 32,18" fill="#0061FF" />
-      <polygon points="22,30 32,38 22,46 12,38" fill="#0061FF" />
-      <polygon points="42,30 52,38 42,46 32,38" fill="#0061FF" />
-      <polygon points="22,46 32,54 42,46 32,38" fill="#3385FF" />
-    </svg>
-  ),
-  zoom: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <rect x="8" y="14" width="36" height="36" rx="10" fill="#2D8CFF" />
-      <rect x="34" y="24" width="18" height="16" rx="4" fill="#CDE3FF" />
-      <rect x="14" y="24" width="18" height="16" rx="6" fill="#E6F0FF" />
-    </svg>
-  ),
-  asana: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <circle cx="32" cy="18" r="10" fill="#FF6B6B" />
-      <circle cx="20" cy="38" r="10" fill="#FFB45B" />
-      <circle cx="44" cy="38" r="10" fill="#FF8F8F" />
-    </svg>
-  ),
-  clickup: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <path d="M16 20 32 8l16 12" fill="none" stroke="#7B68EE" strokeWidth="6" strokeLinecap="round" />
-      <path d="M20 38c8 10 16 10 24 0" fill="none" stroke="#FF6B9E" strokeWidth="6" strokeLinecap="round" />
-      <path d="M22 46c6 6 14 6 20 0" fill="none" stroke="#FFB55A" strokeWidth="6" strokeLinecap="round" />
-    </svg>
-  ),
-  jira: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <path d="M16 32 32 16l16 16-16 16Z" fill="#2684FF" />
-      <path d="M24 32 32 24l8 8-8 8Z" fill="#4C9AFF" />
-    </svg>
-  ),
-  hubspot: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <circle cx="34" cy="32" r="12" fill="#FF7A59" />
-      <circle cx="14" cy="20" r="5" fill="#FF7A59" />
-      <circle cx="46" cy="12" r="4" fill="#FF7A59" />
-      <rect x="12" y="24" width="6" height="18" rx="3" fill="#FF7A59" />
-      <rect x="34" y="10" width="6" height="18" rx="3" fill="#FF7A59" transform="rotate(-45 37 19)" />
-      <rect x="42" y="32" width="12" height="6" rx="3" fill="#FF7A59" />
-    </svg>
-  ),
-  salesforce: (
-    <svg viewBox="0 0 64 64" className="w-10 h-10" aria-hidden="true">
-      <circle cx="26" cy="28" r="10" fill="#00A1E0" />
-      <circle cx="38" cy="28" r="12" fill="#00B4F0" />
-      <circle cx="22" cy="36" r="9" fill="#00B9F1" />
-      <circle cx="38" cy="38" r="11" fill="#00AEEF" />
-      <circle cx="46" cy="32" r="9" fill="#00A1E0" />
-    </svg>
-  ),
+  slack: <img src={slackLogo} alt="Slack logo" className="w-10 h-10" />,
+  teams: <img src={teamsLogo} alt="Microsoft Teams logo" className="w-10 h-10" />,
+  gcal: <img src={gcalLogo} alt="Google Calendar logo" className="w-10 h-10" />,
+  gdrive: <img src={gdriveLogo} alt="Google Drive logo" className="w-10 h-10" />,
+  dropbox: <img src={dropboxLogo} alt="Dropbox logo" className="w-10 h-10" />,
+  zoom: <img src={zoomLogo} alt="Zoom logo" className="w-10 h-10" />,
+  asana: <img src={asanaLogo} alt="Asana logo" className="w-10 h-10" />,
+  clickup: <img src={clickupLogo} alt="ClickUp logo" className="w-10 h-10" />,
+  jira: <img src={jiraLogo} alt="Jira logo" className="w-10 h-10" />,
+  hubspot: <img src={hubspotLogo} alt="HubSpot logo" className="w-10 h-10" />,
+  salesforce: <img src={salesforceLogo} alt="Salesforce logo" className="w-10 h-10" />,
 };
 
 export function IntegrationsScreen({ context }: IntegrationsScreenProps) {
