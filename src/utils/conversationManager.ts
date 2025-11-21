@@ -25,7 +25,7 @@ export interface TaskConversation {
   lastUpdated: Date;
 }
 
-const STORAGE_KEY = 'cohesion-task-conversations-v2';
+const STORAGE_KEY = 'cohesion-task-conversations-v3';
 
 class ConversationManager {
   private conversations: Map<string, TaskConversation>;
@@ -92,7 +92,7 @@ class ConversationManager {
         {
           id: 'msg-1-1',
           type: 'standard',
-          author: 'Sarah Chen',
+          author: 'Roi Santos',
           authorRole: 'pm',
           content: 'Hey team! Let\'s kick off the OAuth 2.0 implementation. I\'ve set up the initial structure in the repo.',
           timestamp: new Date(Date.now() - 86400000 * 2), // 2 days ago
@@ -109,7 +109,7 @@ class ConversationManager {
         {
           id: 'msg-1-3',
           type: 'decision',
-          author: 'Sarah Chen',
+          author: 'Roi Santos',
           authorRole: 'pm',
           content: 'Great question! Let\'s go with RS256 for better security. It uses asymmetric keys which is more suitable for our multi-service architecture.',
           timestamp: new Date(Date.now() - 86400000 * 2 + 7200000), // 2 days ago + 2 hours
@@ -146,7 +146,7 @@ class ConversationManager {
         {
           id: 'msg-2-1',
           type: 'standard',
-          author: 'Sarah Chen',
+          author: 'Angelie Barrientos',
           authorRole: 'member',
           content: 'Started working on the wireframes! Here\'s my initial concept for the main dashboard.',
           timestamp: new Date(Date.now() - 86400000 * 3), // 3 days ago
@@ -154,7 +154,7 @@ class ConversationManager {
         {
           id: 'msg-2-2',
           type: 'attachment',
-          author: 'Sarah Chen',
+          author: 'Angelie Barrientos',
           authorRole: 'member',
           content: 'Dashboard wireframe v1',
           timestamp: new Date(Date.now() - 86400000 * 3 + 300000), // 3 days ago + 5 min
@@ -168,7 +168,7 @@ class ConversationManager {
         {
           id: 'msg-2-3',
           type: 'blocker',
-          author: 'Sarah Chen',
+          author: 'Angelie Barrientos',
           authorRole: 'member',
           content: 'Blocked! Need approval on the color scheme before I can proceed with high-fidelity mockups. @PM can you review?',
           timestamp: new Date(Date.now() - 86400000), // 1 day ago
@@ -224,7 +224,7 @@ class ConversationManager {
         {
           id: 'msg-4-2',
           type: 'standard',
-          author: 'Sarah Chen',
+          author: 'Roi Santos',
           authorRole: 'pm',
           content: 'Excellent work! The tablet layout looks much better now. Can you also check the landscape orientation?',
           timestamp: new Date(Date.now() - 86400000 * 4), // 4 days ago
